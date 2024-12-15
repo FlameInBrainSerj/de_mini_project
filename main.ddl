@@ -6,13 +6,19 @@ CREATE TABLE IF NOT EXISTS public.sskr_meta_info (
     , max_update_dt     TIMESTAMP(0)
 );
 
-INSERT INTO public.sskr_meta_info (schema_name, table_name, max_update_dt)
-VALUES
-    ('local', 'blacklist', '2021-03-01')
-    , ('info', 'cards', '2021-03-01')
-    , ('info', 'clients', '2021-03-01')
-    , ('info', 'accounts', '2021-03-01')
-;
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM public.sskr_meta_info LIMIT 1) THEN
+        INSERT INTO 
+            public.sskr_meta_info ( schema_name, table_name, max_update_dt )
+        VALUES
+            ('local', 'blacklist', '2021-03-01')
+            , ('info', 'cards', '2021-03-01')
+            , ('info', 'clients', '2021-03-01')
+            , ('info', 'accounts', '2021-03-01')
+        ;
+    END IF;
+END $$;
 
 -------------------- Staging -------------------- 
 
@@ -58,7 +64,7 @@ CREATE TABLE IF NOT EXISTS public.sskr_stg_cards (
 
 CREATE TABLE IF NOT EXISTS public.sskr_stg_transactions (
     trans_id            VARCHAR(11)                     PRIMARY KEY
-    , trans_date        DATE                            NOT NULL
+    , trans_date        TIMESTAMP WITHOUT TIME ZONE     NOT NULL
     , card_num          VARCHAR(20)                     NOT NULL
     , oper_type         VARCHAR(10)                     NOT NULL
     , amt               DECIMAL                         NOT NULL
@@ -139,7 +145,7 @@ CREATE TABLE IF NOT EXISTS public.sskr_dwh_dim_cards (
 
 CREATE TABLE IF NOT EXISTS public.sskr_dwh_fact_transactions (
     trans_id            VARCHAR(11)                     PRIMARY KEY
-    , trans_date        DATE                            NOT NULL
+    , trans_date        TIMESTAMP WITHOUT TIME ZONE     NOT NULL
     , card_num          VARCHAR(20)                     NOT NULL
     , oper_type         VARCHAR(10)                     NOT NULL
     , amt               DECIMAL                         NOT NULL

@@ -72,31 +72,41 @@ def archive_processed_files() -> None:
 
 
 def run_antifraud_scripts() -> None:
+    pass
     run_antifraud_identification_script("blocked_or_outdated_passport.sql")
     run_antifraud_identification_script("invalid_contract.sql")
-    run_antifraud_identification_script("many_cities_in_a_row.sql")
-    run_antifraud_identification_script("sum_fit.sql")
+    run_antifraud_identification_script("many_cities_in_one_hour.sql")
+    # run_antifraud_identification_script("sum_fit.sql")
+
+
+# TODO:
+# - logical recheck
+# - check: 3 consecutive executions are correct (no duplication, etc.)
+# - airflow (ds_nodash)
+# - README.md написать
+# - last antifraud
+# - scd2
 
 
 if __name__ == "__main__":
     delete_tables()
-    create_tables()
+    # create_tables()
 
-    truncate_stg_tables()
+    # truncate_stg_tables()
 
-    (transactions_data, terminals_data, passport_blacklist_data) = read_data_local()
-    (clients_data, cards_data, accounts_data) = read_data_pg()
+    # (transactions_data, terminals_data, passport_blacklist_data) = read_data_local()
+    # (clients_data, cards_data, accounts_data) = read_data_pg()
 
-    write_data_to_pg(
-        transactions_data,
-        terminals_data,
-        passport_blacklist_data,
-        clients_data,
-        cards_data,
-        accounts_data,
-    )
+    # write_data_to_pg(
+    #     transactions_data,
+    #     terminals_data,
+    #     passport_blacklist_data,
+    #     clients_data,
+    #     cards_data,
+    #     accounts_data,
+    # )
 
-    run_stg_to_dwh_pipeline()
+    # run_stg_to_dwh_pipeline()
 
     # run_antifraud_scripts()
 
