@@ -12,7 +12,7 @@ from py_scripts.pg.scripts import (
     create_tables,
     delete_tables,
     truncate_stg_tables,
-    run_scd1_pipeline,
+    run_stg_to_dwh_pipeline,
     run_antifraud_identification_script,
 )
 from py_scripts.pg.read import (
@@ -64,16 +64,19 @@ def write_data_to_pg(
     write_to_db(cards_data, "sskr_stg_cards")
     write_to_db(accounts_data, "sskr_stg_accounts")
 
+
 def archive_processed_files() -> None:
     archivise_file("passport_blacklist", f"passport_blacklist_{DATE}.xlsx")
     archivise_file("terminals", f"terminals_{DATE}.xlsx")
     archivise_file("transactions", f"transactions_{DATE}.txt")
+
 
 def run_antifraud_scripts() -> None:
     run_antifraud_identification_script("blocked_or_outdated_passport.sql")
     run_antifraud_identification_script("invalid_contract.sql")
     run_antifraud_identification_script("many_cities_in_a_row.sql")
     run_antifraud_identification_script("sum_fit.sql")
+
 
 if __name__ == "__main__":
     delete_tables()
@@ -93,7 +96,7 @@ if __name__ == "__main__":
         accounts_data,
     )
 
-    # run_scd1_pipeline()
+    run_stg_to_dwh_pipeline()
 
     # run_antifraud_scripts()
 

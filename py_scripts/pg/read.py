@@ -6,19 +6,20 @@ from py_scripts.env import PG_ENGINE
 def read_clients_table() -> pd.DataFrame:
     query = """
         SELECT
-            client_id
-            , last_name
-            , first_name
-            , patronymic
+            TRIM(client_id)         AS client_id
+            , TRIM(last_name)       AS last_name
+            , TRIM(first_name)      AS first_name
+            , TRIM(patronymic)      AS patronymic
             , date_of_birth
-            , passport_num
+            , TRIM(passport_num)    AS passport_num
             , passport_valid_to
-            , phone
+            , TRIM(phone)           AS phone
             , create_dt
             , update_dt
         FROM
             info.clients
-        """
+        ;
+    """
 
     return pd.read_sql(query, PG_ENGINE)
 
@@ -26,13 +27,14 @@ def read_clients_table() -> pd.DataFrame:
 def read_cards_table() -> pd.DataFrame:
     query = """
         SELECT
-            card_num
-            , account
+            TRIM(card_num)          AS card_num
+            , TRIM(account)         AS account
             , create_dt
             , update_dt
         FROM
             info.cards
-        """
+        ;
+    """
 
     return pd.read_sql(query, PG_ENGINE).rename(columns={"account": "account_num"})
 
@@ -40,13 +42,14 @@ def read_cards_table() -> pd.DataFrame:
 def read_accounts_table() -> pd.DataFrame:
     query = """
         SELECT
-            account
+            TRIM(account)           AS account
             , valid_to
-            , client
+            , TRIM(client)          AS client
             , create_dt
             , update_dt
         FROM
             info.accounts
-        """
+        ;
+    """
 
     return pd.read_sql(query, PG_ENGINE).rename(columns={"account": "account_num"})

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pandas as pd
 
 from py_scripts.env import DATA_SOURCE_PATH
@@ -27,6 +29,7 @@ def read_terminals(date: str) -> None:
         DATA_SOURCE_PATH / "terminals" / f"terminals_{date}.xlsx",
         sheet_name="terminals",
     )
+    terminals_data["file_date"] = f"{date[4:]}-{date[2:4]}-{date[:2]}"
 
     return terminals_data
 

@@ -6,6 +6,14 @@ CREATE TABLE IF NOT EXISTS public.sskr_meta_info (
     , max_update_dt     TIMESTAMP(0)
 );
 
+INSERT INTO public.sskr_meta_info (schema_name, table_name, max_update_dt)
+VALUES
+    ('local', 'blacklist', '2021-03-01')
+    , ('info', 'cards', '2021-03-01')
+    , ('info', 'clients', '2021-03-01')
+    , ('info', 'accounts', '2021-03-01')
+;
+
 -------------------- Staging -------------------- 
 
 CREATE TABLE IF NOT EXISTS public.sskr_stg_terminals (
@@ -13,6 +21,7 @@ CREATE TABLE IF NOT EXISTS public.sskr_stg_terminals (
     , terminal_type     VARCHAR(3)                      NOT NULL
     , terminal_city     VARCHAR(25)                     NOT NULL
     , terminal_address  VARCHAR(60)                     NOT NULL
+    , file_date         DATE                            NOT NULL
 )
 ;
 
@@ -64,6 +73,23 @@ CREATE TABLE IF NOT EXISTS public.sskr_stg_blacklist (
 )
 ;
 
+-------------------- Staging - del -------------------- 
+
+CREATE TABLE IF NOT EXISTS public.sskr_stg_del_clients (
+    client_id           VARCHAR(10)
+)
+;
+
+CREATE TABLE IF NOT EXISTS public.sskr_stg_del_cards (
+    card_num            VARCHAR(20)
+)
+;
+
+CREATE TABLE IF NOT EXISTS public.sskr_stg_del_accounts (
+    account_num         VARCHAR(20)
+)
+;
+ 
 -------------------- FACT & DIM -------------------- 
 
 CREATE TABLE IF NOT EXISTS public.sskr_dwh_dim_terminals (
@@ -72,7 +98,7 @@ CREATE TABLE IF NOT EXISTS public.sskr_dwh_dim_terminals (
     , terminal_city     VARCHAR(25)                     NOT NULL
     , terminal_address  VARCHAR(60)                     NOT NULL
     , create_dt         TIMESTAMP WITHOUT TIME ZONE     NOT NULL
-    , update_dt         TIMESTAMP WITHOUT TIME ZONE     NOT NULL
+    , update_dt         TIMESTAMP WITHOUT TIME ZONE
 )
 ;
 
@@ -86,7 +112,7 @@ CREATE TABLE IF NOT EXISTS public.sskr_dwh_dim_clients (
     , passport_valid_to DATE
     , phone             VARCHAR(16)                     NOT NULL
     , create_dt         TIMESTAMP WITHOUT TIME ZONE     NOT NULL
-    , update_dt         TIMESTAMP WITHOUT TIME ZONE     NOT NULL
+    , update_dt         TIMESTAMP WITHOUT TIME ZONE
 )
 ;
 
@@ -95,7 +121,7 @@ CREATE TABLE IF NOT EXISTS public.sskr_dwh_dim_accounts (
     , valid_to          DATE                            NOT NULL
     , client            VARCHAR(10)                     NOT NULL
     , create_dt         TIMESTAMP WITHOUT TIME ZONE     NOT NULL
-    , update_dt         TIMESTAMP WITHOUT TIME ZONE     NOT NULL
+    , update_dt         TIMESTAMP WITHOUT TIME ZONE
 
     , FOREIGN KEY (client) REFERENCES public.sskr_dwh_dim_clients (client_id)
 )
@@ -105,7 +131,7 @@ CREATE TABLE IF NOT EXISTS public.sskr_dwh_dim_cards (
     card_num            VARCHAR(20)                     PRIMARY KEY
     , account_num       VARCHAR(20)                     NOT NULL
     , create_dt         TIMESTAMP WITHOUT TIME ZONE     NOT NULL
-    , update_dt         TIMESTAMP WITHOUT TIME ZONE     NOT NULL
+    , update_dt         TIMESTAMP WITHOUT TIME ZONE
 
     , FOREIGN KEY (account_num) REFERENCES public.sskr_dwh_dim_accounts (account_num)
 )
