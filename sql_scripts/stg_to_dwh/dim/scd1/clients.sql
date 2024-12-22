@@ -2,12 +2,19 @@
 
 -- 1. For further deletion from target table
 
-INSERT INTO 
-	public.sskr_stg_del_clients( client_id )
-SELECT 
-	client_id
+INSERT INTO
+	public.sskr_stg_del_clients ( client_id )
+SELECT
+	sc.client_id
 FROM 
-	public.sskr_stg_clients
+	public.sskr_stg_clients sc
+LEFT JOIN 
+	public.sskr_stg_del_clients sdc
+ON 
+  	sc.client_id = sdc.client_id
+WHERE 
+	1 = 1
+	AND sdc.client_id IS NULL
 ;
 
 -- 2. Remove unnecessary data
@@ -15,7 +22,8 @@ FROM
 DELETE FROM 
 	public.sskr_stg_clients
 WHERE 
-	update_dt < ( 
+	1 = 1
+	AND update_dt < ( 
 		SELECT 
 			max_update_dt 
 		FROM 
@@ -23,9 +31,8 @@ WHERE
 		WHERE 
 			1 = 1
 			AND schema_name='info'
-			AND table_name='clients' 
+			AND table_name='clients_scd1' 
 	)
-	OR update_dt IS NOT NULL
 ;
 
 -- 3. Insert new data to target
@@ -60,7 +67,8 @@ LEFT JOIN
 ON 
 	stg.client_id = tgt.client_id
 WHERE
-	tgt.client_id IS NULL
+	1 = 1
+	AND tgt.client_id IS NULL
 ;
 
 -- 4. Update values
@@ -89,22 +97,25 @@ FROM (
 		, stg.update_dt	
 	FROM 
 		public.sskr_stg_clients stg
-	INNER JOIN 
+	INNER JOIN
 		public.sskr_dwh_dim_clients tgt
 	ON 
 		stg.client_id = tgt.client_id
 	WHERE 
-		stg.last_name <> tgt.last_name
+		1 = 0
+		OR stg.last_name <> tgt.last_name
 		OR stg.first_name <> tgt.first_name
 		OR stg.patronymic <> tgt.patronymic
 		OR stg.date_of_birth <> tgt.date_of_birth
 		OR stg.passport_num <> tgt.passport_num
 		OR stg.phone <> tgt.phone
+		OR stg.passport_valid_to <> tgt.passport_valid_to
 		OR ( stg.passport_valid_to is null and tgt.passport_valid_to is not null ) 
 		OR ( stg.passport_valid_to is not null and tgt.passport_valid_to is null )
 ) tmp
 WHERE
-	public.sskr_dwh_dim_clients.client_id = tmp.client_id
+	1 = 1
+	AND public.sskr_dwh_dim_clients.client_id = tmp.client_id
 ; 
 
 -- 5. Delete rows that no longer exist in source
@@ -112,7 +123,8 @@ WHERE
 DELETE FROM 
 	public.sskr_dwh_dim_clients
 WHERE
-	client_id IN (
+	1 = 1
+	AND client_id IN (
 		SELECT 
 			tgt.client_id
 		FROM 
@@ -122,7 +134,8 @@ WHERE
 		ON 
 			stg.client_id = tgt.client_id
 		WHERE 
-			stg.client_id IS NULL
+			1 = 1
+			AND stg.client_id IS NULL
 	)
 ;
 
@@ -139,16 +152,16 @@ SET
 		, (
 			SELECT max_update_dt 
 			FROM public.sskr_meta_info 
-			where 
+			WHERE
 				1 = 1
 				AND schema_name = 'info' 
-				AND table_name = 'clients' 
+				AND table_name = 'clients_scd1' 
 		)
 	)
-where 
+WHERE
 	1 = 1
 	AND schema_name = 'info' 
-	AND table_name = 'clients'
+	AND table_name = 'clients_scd1'
 ;
 
 COMMIT;

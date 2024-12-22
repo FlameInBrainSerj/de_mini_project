@@ -6,16 +6,19 @@ CREATE TABLE IF NOT EXISTS public.sskr_meta_info (
     , max_update_dt     TIMESTAMP(0)
 );
 
+-------------------- Meta: initial data -------------------- 
+
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM public.sskr_meta_info LIMIT 1) THEN
         INSERT INTO 
             public.sskr_meta_info ( schema_name, table_name, max_update_dt )
         VALUES
-            ('local', 'blacklist', '2021-03-01')
-            , ('info', 'cards', '2021-03-01')
-            , ('info', 'clients', '2021-03-01')
-            , ('info', 'accounts', '2021-03-01')
+            ('local', 'blacklist', '2021-02-28')
+            
+            , ('info', 'cards_scd1', '2021-02-28')
+            , ('info', 'clients_scd1', '2021-02-28')
+            , ('info', 'accounts_scd1', '2021-02-28')
         ;
     END IF;
 END $$;
@@ -95,8 +98,8 @@ CREATE TABLE IF NOT EXISTS public.sskr_stg_del_accounts (
     account_num         VARCHAR(20)
 )
 ;
- 
--------------------- FACT & DIM -------------------- 
+
+-------------------- DWH: DIM - SCD1 -------------------- 
 
 CREATE TABLE IF NOT EXISTS public.sskr_dwh_dim_terminals (
     terminal_id         VARCHAR(6)                      PRIMARY KEY
@@ -143,6 +146,8 @@ CREATE TABLE IF NOT EXISTS public.sskr_dwh_dim_cards (
 )
 ;
 
+-------------------- DWH: FACT -------------------- 
+
 CREATE TABLE IF NOT EXISTS public.sskr_dwh_fact_transactions (
     trans_id            VARCHAR(11)                     PRIMARY KEY
     , trans_date        TIMESTAMP WITHOUT TIME ZONE     NOT NULL
@@ -176,4 +181,3 @@ CREATE TABLE IF NOT EXISTS public.sskr_rep_fraud (
 ;
 
 COMMIT;
-

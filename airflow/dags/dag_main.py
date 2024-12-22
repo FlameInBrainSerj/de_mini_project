@@ -11,10 +11,10 @@ from py_scripts.local.read import (
 )
 from py_scripts.pg.scripts import (
     create_tables,
-    delete_tables,
     truncate_stg_tables,
-    run_stg_to_dwh_pipeline,
-    run_antifraud_identification_script,
+    stg_dim_scd1_to_dwh,
+    stg_fact_to_dwh,
+    antifraud_identification_script,
 )
 from py_scripts.pg.read import (
     read_clients_table,
@@ -24,7 +24,7 @@ from py_scripts.pg.read import (
 from py_scripts.pg.write import write_to_db
 
 
-def write_local_data_to_stg(**kwargs):
+def local_data_to_stg(**kwargs):
     date = kwargs["params"]["date"]
     if date is None:
         date = datetime.now().strftime("%d%m%Y")
@@ -38,7 +38,7 @@ def write_local_data_to_stg(**kwargs):
     write_to_db(passport_blacklist_data, "sskr_stg_blacklist")
 
 
-def write_pg_data_to_stg(**kwargs):
+def pg_data_to_stg(**kwargs):
     clients_data = read_clients_table()
     cards_data = read_cards_table()
     accounts_data = read_accounts_table()
@@ -58,11 +58,11 @@ def archive_processed_files(**kwargs):
     archivise_file("transactions", f"transactions_{date}.txt")
 
 
-def run_antifraud_scripts(**kwargs):
-    run_antifraud_identification_script("blocked_or_outdated_passport.sql")
-    run_antifraud_identification_script("invalid_contract.sql")
-    run_antifraud_identification_script("many_cities_in_one_hour.sql")
-    run_antifraud_identification_script("sum_fit.sql")
+def antifraud_scripts(**kwargs):
+    antifraud_identification_script("blocked_or_outdated_passport.sql")
+    antifraud_identification_script("invalid_contract.sql")
+    antifraud_identification_script("many_cities_in_one_hour.sql")
+    antifraud_identification_script("sum_fit.sql")
 
 
 dag = DAG(
@@ -101,33 +101,41 @@ truncate_stg_tables_task = PythonOperator(
     dag=dag,
 )
 
-write_local_data_to_stg_task = PythonOperator(
+local_data_to_stg_task = PythonOperator(
     task_id="local_data_to_stg",
-    python_callable=write_local_data_to_stg,
+    python_callable=local_data_to_stg,
     provide_context=True,
     dag=dag,
 )
 
-write_pg_data_to_stg_task = PythonOperator(
+pg_data_to_stg_task = PythonOperator(
     task_id="pg_data_to_stg",
-    python_callable=write_pg_data_to_stg,
+    python_callable=pg_data_to_stg,
     provide_context=True,
     dag=dag,
 )
 
-run_stg_to_dwh_pipeline_scd1_task = PythonOperator(
-    task_id="stg_to_dwh_pipeline_scd1",
-    python_callable=run_stg_to_dwh_pipeline,
+stg_dim_scd1_to_dwh_task = PythonOperator(
+    task_id="stg_dim_scd1_to_dwh",
+    python_callable=stg_dim_scd1_to_dwh,
     provide_context=True,
     dag=dag,
 )
 
-run_antifraud_scripts_task = PythonOperator(
+stg_fact_to_dwh_task = PythonOperator(
+    task_id="stg_fact_to_dwh",
+    python_callable=stg_fact_to_dwh,
+    provide_context=True,
+    dag=dag,
+)
+
+antifraud_scripts_task = PythonOperator(
     task_id="antifraud_scripts",
-    python_callable=run_antifraud_scripts,
+    python_callable=antifraud_scripts,
     provide_context=True,
     dag=dag,
 )
+
 
 archive_processed_files_task = PythonOperator(
     task_id="archive_processed_files",
@@ -139,8 +147,9 @@ archive_processed_files_task = PythonOperator(
 (
     create_tables_task
     >> truncate_stg_tables_task
-    >> [write_local_data_to_stg_task, write_pg_data_to_stg_task]
-    >> run_stg_to_dwh_pipeline_scd1_task
-    >> run_antifraud_scripts_task
+    >> [local_data_to_stg_task, pg_data_to_stg_task]
     >> archive_processed_files_task
+    >> stg_dim_scd1_to_dwh_task
+    >> stg_fact_to_dwh_task
+    >> antifraud_scripts_task
 )

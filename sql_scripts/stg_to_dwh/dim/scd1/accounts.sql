@@ -2,12 +2,19 @@
 
 -- 1. For further deletion from target table
 
-INSERT INTO 
-	public.sskr_stg_del_accounts( account_num )
-SELECT 
-	account_num
+INSERT INTO
+	public.sskr_stg_del_accounts ( account_num )
+SELECT
+	sa.account_num
 FROM
-	public.sskr_stg_accounts
+	public.sskr_stg_accounts sa
+LEFT JOIN 
+	public.sskr_stg_del_accounts sda
+ON 
+  	sa.account_num = sda.account_num
+WHERE 
+	1 = 1
+	AND sda.account_num IS NULL
 ;
 
 -- 2. Remove unnecessary data
@@ -15,17 +22,17 @@ FROM
 DELETE FROM 
 	public.sskr_stg_accounts
 WHERE
-	update_dt < ( 
-		SELECT 
-			max_update_dt 
+	1 = 1
+	AND update_dt < ( 
+		SELECT
+			max_update_dt
 		FROM 
 			public.sskr_meta_info 
 		WHERE 
 			1 = 1
-			AND schema_name='info'
-			AND table_name='accounts' 
+			AND schema_name = 'info'
+			AND table_name = 'accounts_scd1' 
 	)
-	OR update_dt IS NOT NULL
 ;
 
 -- 3. Insert new data to target
@@ -50,7 +57,8 @@ LEFT JOIN
 ON 
 	stg.account_num = tgt.account_num
 WHERE
-	tgt.account_num IS NULL
+	1 = 1
+	AND tgt.account_num IS NULL
 ;
 
 -- 4. Update values
@@ -74,11 +82,13 @@ FROM (
 	ON 
 		stg.account_num = tgt.account_num
 	WHERE 
-		stg.valid_to <> tgt.valid_to
+		1 = 0
+		OR stg.valid_to <> tgt.valid_to
         OR stg.client <> tgt.client
 ) tmp
 WHERE
-	public.sskr_dwh_dim_accounts.account_num = tmp.account_num
+	1 = 1
+	AND public.sskr_dwh_dim_accounts.account_num = tmp.account_num
 ;
 
 -- 5. Delete rows that no longer exist in source
@@ -86,7 +96,8 @@ WHERE
 DELETE FROM 
 	public.sskr_dwh_dim_accounts
 WHERE
-	account_num IN (
+	1 = 1
+	AND account_num IN (
 		SELECT
 			tgt.account_num
 		FROM
@@ -96,7 +107,8 @@ WHERE
 		ON
 			stg.account_num = tgt.account_num
 		WHERE
-			stg.account_num IS NULL
+			1 = 1
+			AND stg.account_num IS NULL
 	)
 ;
 
@@ -108,21 +120,21 @@ SET
 	max_update_dt = COALESCE( 
 		(
 			SELECT MAX( update_dt ) 
-			from public.sskr_stg_accounts 
+			FROM public.sskr_stg_accounts 
 		)
 		, (
 			SELECT max_update_dt 
 			FROM public.sskr_meta_info 
-			where 
+			WHERE 
 				1 = 1
 				AND schema_name = 'info' 
-				AND table_name = 'accounts' 
+				AND table_name = 'accounts_scd1'
 		)
 	)
-where 
+WHERE 
 	1 = 1
 	AND schema_name = 'info' 
-	AND table_name = 'accounts'
+	AND table_name = 'accounts_sd1'
 ;
 
 COMMIT;

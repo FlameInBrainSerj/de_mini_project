@@ -33,18 +33,18 @@ SET
 	max_update_dt = COALESCE( 
 		(
 			SELECT MAX( entry_dt ) 
-			from public.sskr_stg_blacklist 
+			FROM public.sskr_stg_blacklist 
 		)
 		, (
 			SELECT max_update_dt 
 			FROM public.sskr_meta_info 
-			where 
+			WHERE 
 				1 = 1
 				AND schema_name = 'local' 
 				AND table_name = 'blacklist' 
 		)
 	)
-where 
+WHERE 
 	1 = 1
 	AND schema_name = 'local' 
 	AND table_name = 'blacklist'

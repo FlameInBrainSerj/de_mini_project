@@ -24,7 +24,8 @@ LEFT JOIN
 ON 
 	stg.terminal_id = tgt.terminal_id
 WHERE
-	tgt.terminal_id IS NULL
+	1 = 1
+	AND tgt.terminal_id IS NULL
 ;
 
 -- 2. Update values
@@ -50,12 +51,14 @@ FROM (
 	ON 
 		stg.terminal_id = tgt.terminal_id
 	WHERE 
-		stg.terminal_type <> tgt.terminal_type
+		1 = 0
+		OR stg.terminal_type <> tgt.terminal_type
 		OR stg.terminal_city <> tgt.terminal_city
 		OR stg.terminal_address <> tgt.terminal_address
 ) tmp
 WHERE
-	public.sskr_dwh_dim_terminals.terminal_id = tmp.terminal_id
+	1 = 1
+	AND public.sskr_dwh_dim_terminals.terminal_id = tmp.terminal_id
 ;
 
 -- 3. Delete rows that no longer exist in source
@@ -63,7 +66,8 @@ WHERE
 DELETE FROM 
 	public.sskr_dwh_dim_terminals
 WHERE
-	terminal_id IN (
+	1 = 1
+	AND terminal_id IN (
 		SELECT 
 			tgt.terminal_id
 		FROM 
@@ -73,7 +77,8 @@ WHERE
 		ON 
 			stg.terminal_id = tgt.terminal_id
 		WHERE 
-			stg.terminal_id IS NULL
+			1 = 1
+			AND stg.terminal_id IS NULL
 	)
 ;
 

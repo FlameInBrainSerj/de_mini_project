@@ -30,7 +30,6 @@ ON
     acc.client = c.client_id
 WHERE 
     1 = 1
-    AND acc.valid_to IS NOT NULL
     AND acc.valid_to < t.trans_date
 ;
 
