@@ -28,6 +28,8 @@ To run Pipeline follow these steps:
     - If you want to run the DAG for the specific date, enter the date in format `DDMMYYYY`
     - If you want to run the DAG for today, keep the field empty
 
+The DAG will run each day at 3:00 AM!
+
 To delete all tables, run:
 ```bash
 python ./delete_tables.py
