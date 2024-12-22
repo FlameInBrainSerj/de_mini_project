@@ -1,6 +1,6 @@
 x-airflow-common:
   &airflow-common
-  build: ./
+  build: ./dockerfiles/airflow/
   env_file:
     - ./.env
   environment:
@@ -13,6 +13,12 @@ x-airflow-common:
     - ./airflow/dags:/opt/airflow/dags
     - ./airflow/plugins:/opt/airflow/plugins
     - airflow_logs:/opt/airflow/logs
+    
+    - ./main.ddl:/main/main.ddl
+    - ./py_scripts:/main/py_scripts
+    - ./sql_scripts:/main/sql_scripts
+    - ./source:/main/source
+    - ./archive:/main/archive
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on

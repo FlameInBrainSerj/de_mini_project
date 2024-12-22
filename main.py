@@ -76,14 +76,12 @@ def run_antifraud_scripts() -> None:
     run_antifraud_identification_script("blocked_or_outdated_passport.sql")
     run_antifraud_identification_script("invalid_contract.sql")
     run_antifraud_identification_script("many_cities_in_one_hour.sql")
-    # run_antifraud_identification_script("sum_fit.sql")
+    run_antifraud_identification_script("sum_fit.sql")
 
 
 # TODO:
 # - logical recheck
 # - check: 3 consecutive executions are correct (no duplication, etc.)
-# - airflow (ds_nodash)
-# - README.md написать
 # - last antifraud
 # - scd2
 
