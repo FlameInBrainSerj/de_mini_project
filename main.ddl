@@ -131,8 +131,6 @@ CREATE TABLE IF NOT EXISTS public.sskr_dwh_dim_accounts (
     , client            VARCHAR(10)                     NOT NULL
     , create_dt         TIMESTAMP WITHOUT TIME ZONE     NOT NULL
     , update_dt         TIMESTAMP WITHOUT TIME ZONE
-
-    , FOREIGN KEY (client) REFERENCES public.sskr_dwh_dim_clients (client_id)
 )
 ;
 
@@ -141,8 +139,6 @@ CREATE TABLE IF NOT EXISTS public.sskr_dwh_dim_cards (
     , account_num       VARCHAR(20)                     NOT NULL
     , create_dt         TIMESTAMP WITHOUT TIME ZONE     NOT NULL
     , update_dt         TIMESTAMP WITHOUT TIME ZONE
-
-    , FOREIGN KEY (account_num) REFERENCES public.sskr_dwh_dim_accounts (account_num)
 )
 ;
 
@@ -156,9 +152,6 @@ CREATE TABLE IF NOT EXISTS public.sskr_dwh_fact_transactions (
     , amt               DECIMAL                         NOT NULL
     , oper_result       VARCHAR(10)                     NOT NULL
     , terminal          VARCHAR(6)                      NOT NULL
-
-    , FOREIGN KEY (card_num) REFERENCES public.sskr_dwh_dim_cards (card_num)
-    , FOREIGN KEY (terminal) REFERENCES public.sskr_dwh_dim_terminals (terminal_id)
 )
 ;
 
