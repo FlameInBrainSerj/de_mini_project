@@ -22,9 +22,9 @@ def truncate_stg_tables() -> None:
 
 
 def stg_dim_scd1_to_dwh() -> None:
-    _execute_sql_script(STG_TO_DWH_DIM_SCD1_SCRIPTS_PATH / "clients.sql")
-    _execute_sql_script(STG_TO_DWH_DIM_SCD1_SCRIPTS_PATH / "accounts.sql")
     _execute_sql_script(STG_TO_DWH_DIM_SCD1_SCRIPTS_PATH / "cards.sql")
+    _execute_sql_script(STG_TO_DWH_DIM_SCD1_SCRIPTS_PATH / "accounts.sql")
+    _execute_sql_script(STG_TO_DWH_DIM_SCD1_SCRIPTS_PATH / "clients.sql")
     _execute_sql_script(STG_TO_DWH_DIM_SCD1_SCRIPTS_PATH / "terminals.sql")
 
 
