@@ -41,7 +41,7 @@ INSERT INTO
 	public.sskr_dwh_dim_accounts( 
 		account_num
 		, valid_to
-        , client
+		, client
 		, create_dt
 		, update_dt 
 	)
